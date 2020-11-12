@@ -2,10 +2,9 @@
   "ExpandedNodes": [
     "",
     "\\auctions",
-    "\\auctions\\static\\auctions",
     "\\auctions\\templates\\auctions",
     "\\commerce"
   ],
-  "SelectedNode": "\\auctions\\views.py",
+  "SelectedNode": "\\auctions\\models.py",
   "PreviewInSolutionExplorer": false
 }

@@ -6,7 +6,7 @@ from django.shortcuts import render
 from django.urls import reverse
 
 from .forms import NewListingForm
-from .models import User
+from .models import User, Listing
 
 
 def index(request):
@@ -65,10 +65,24 @@ def register(request):
         return render(request, "auctions/register.html")
 
 
-@login_required
+
 def addlisting(request):
-    if request.method == "POST": 
-        pass
+    if not request.user.is_authenticated:
+        return HttpResponseRedirect(reverse("login"))
+    if request.method == "POST":
+        owner = Listing(owner=request.user)
+        form = NewListingForm(request.POST, instance=owner)
+        if form.is_valid():
+            form.save()
+
+            return HttpResponseRedirect(reverse("index"))
+
+
+        else:
+            return render(request, "auctions/addlisting.html", {
+                "form": form
+                })
+
     else:
         return render(request, "auctions/addlisting.html", {
             "form": NewListingForm()
