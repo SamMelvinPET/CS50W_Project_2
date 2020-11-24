@@ -1,0 +1,83 @@
+{% extends "auctions/layout.html" %}
+
+{% block body %}
+    {% if listing.closed %}
+        <h2>Closed: {{ listing.title }}</h2>
+    {% else %}
+        <h2>{{ listing.title }}</h2>
+    {% endif %}
+
+    <div>Listed by: {{ listing.owner }}</div>
+    {% if listing.imageurl %}
+        <div>
+            <img src="{{ listing.imageurl }}" />
+        </div>
+    {% endif %}
+    <div>
+        <p>{{ listing.description }}</p>
+    </div>
+    
+    {% if listing.bidder %}
+        {% if listing.bidder == request.user %}
+            {% if listing.closed %}
+                <div>You have the winning bid!</div>
+            {% else %}
+                <div>Your bid is currently winning!</div>
+            {% endif %}
+        {% endif %}
+        <div>Latest bid: &#163;{{ listing.bid }}</div>
+    {% else %}
+        <div>Starting bid: &#163;{{ listing.bid }}</div>
+    {% endif %}
+
+
+    {% if request.user == listing.owner %}
+        <a href="{% url 'close' listing.id %}">Close listing</a>
+    {% endif %}
+    
+    {% if bidmessage %}
+        {{ bidmessage | safe }}
+    {% endif %}
+
+    {% if request.user.is_authenticated %}
+        {% if request.user != listing.owner %}
+            {% if not listing.closed %}
+                <form action="{% url 'listing' listing.id %}" method="post">
+                    {% csrf_token %}
+                    {{ bidform }}
+                    <input type="submit" value="Place Bid" />
+                </form>
+                <br />
+            {% endif %}
+            {% if watched %}
+                <div><a href="{% url 'unwatch' listing.id %}">Unwatch listing</a></div>
+            {% else %}
+                <div><a href="{% url 'watch' listing.id %}"> Watch listing</a></div>
+            {% endif %}
+        {% endif %}
+    {% endif %}
+
+<hr />
+<h3>Leave a Comment</h3>
+{% if request.user.is_authenticated %}
+    <form action="{% url 'comment' listing.id %}" method="post">
+        {% csrf_token %}
+        {{ commentform }}
+        <br />
+        <input type="submit" value="Create comment" />
+
+    </form>
+{% else %}
+<div>You must be logged in to add comments</div>
+{% endif %}
+<hr />
+<h3>Comments</h3>
+{% for comment in comments %}
+    <div>{{ comment.commenter }} commented:</div>
+    <div class="alert alert-secondary" role="alert">{{ comment.value }}</div>
+{% empty %}
+    <div>No comments yet!</div> 
+{% endfor %}
+
+
+{% endblock %}
